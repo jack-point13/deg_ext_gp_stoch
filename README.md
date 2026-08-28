@@ -1,4 +1,4 @@
-# Extreme Points of Gibbs-Preserving Stochastic Maps
+# Companion code for extreme points of Gibbs-preserving stochastic maps
 
 A computational companion to the study of the convex structure of Gibbs-preserving stochastic maps with degenerate energy spectra.
 

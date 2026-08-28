@@ -90,7 +90,7 @@ listed in enStruct.\
   3.9967255159512424`*^9, {3.9967255522955933`*^9, 
    3.996725585289835*^9}},ExpressionUUID->"0eefc19a-8263-5b4d-8759-\
 d958eb3e5473"]
-}, Open  ]],
+}, Closed]],
 
 Cell[CellGroupData[{
 
@@ -115,7 +115,7 @@ where g is the relevant Gibbs vector.\
   3.9967255159512424`*^9, {3.9967255522955933`*^9, 
    3.9967256181496696`*^9}},ExpressionUUID->"dfd1f900-878e-df4f-8dfa-\
 203d066e3093"]
-}, Open  ]],
+}, Closed]],
 
 Cell[CellGroupData[{
 
@@ -165,7 +165,7 @@ Its associated candidate germs are
    3.996725642479706*^9, 
    3.9967256538041973`*^9}},ExpressionUUID->"4351d79f-2a81-2543-996a-\
 dcc538b55b59"]
-}, Open  ]],
+}, Closed]],
 
 Cell[CellGroupData[{
 
@@ -209,7 +209,7 @@ For example,
    3.996725642479706*^9, 
    3.996725667749424*^9}},ExpressionUUID->"6e372404-6d8b-fe40-be85-\
 6e46731ccb75"]
-}, Open  ]],
+}, Closed]],
 
 Cell[CellGroupData[{
 
@@ -240,7 +240,7 @@ expressions.\
    3.996725642479706*^9, 
    3.9967256785571003`*^9}},ExpressionUUID->"f96ee203-7adf-4c42-acbd-\
 fcfc3e71d534"]
-}, Open  ]]
+}, Closed]]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -295,7 +295,7 @@ low-temperature germ construction.\
    3.996725642479706*^9, 
    3.9967257143296013`*^9}},ExpressionUUID->"5ab7c447-ae94-0349-b762-\
 6b502c7508ad"]
-}, Open  ]],
+}, Closed]],
 
 Cell[CellGroupData[{
 
@@ -337,7 +337,7 @@ Its associated candidate germs are
    3.996725642479706*^9, 3.9967257047325573`*^9}, {3.9967257534397717`*^9, 
    3.9967257809640713`*^9}},ExpressionUUID->"6f1995fb-352c-7143-8193-\
 a133014f4508"]
-}, Open  ]],
+}, Closed]],
 
 Cell[CellGroupData[{
 
@@ -394,7 +394,7 @@ deterministic stochastic matrix compatible with the chosen energy structure.\
    3.9967257891494083`*^9, 
    3.996725790341776*^9}},ExpressionUUID->"1582aebb-faec-0b4c-a594-\
 b60429f377d5"]
-}, Open  ]],
+}, Closed]],
 
 Cell[CellGroupData[{
 
@@ -439,7 +439,7 @@ starting point.
    3.9967257962641163`*^9, 
    3.996725801899563*^9}},ExpressionUUID->"cef8bb08-fee9-bd49-8a3e-\
 e6d0efbf6ae1"]
-}, Open  ]]
+}, Closed]]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -511,7 +511,7 @@ Similarly, a selected high-temperature sector can be evaluated using
    3.9967257962641163`*^9, 
    3.996725813752489*^9}},ExpressionUUID->"e6c91385-8713-d848-9458-\
 7bd87d263b79"]
-}, Open  ]],
+}, Closed]],
 
 Cell[CellGroupData[{
 
@@ -548,7 +548,7 @@ point.
    3.996725642479706*^9, 3.9967257047325573`*^9}, 3.9967257534397717`*^9, 
    3.9967257962641163`*^9},ExpressionUUID->"65dc2e19-fc3f-804f-8c81-\
 ef8c05c0852e"]
-}, Open  ]]
+}, Closed]]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -934,7 +934,7 @@ Cell[BoxData[{
  InitializationCell->True,
  CellChangeTimes->{{3.996723450360876*^9, 3.9967235933697815`*^9}},
  CellLabel->"In[38]:=",ExpressionUUID->"ab69ce8b-4d6b-8c46-b9c5-0f318769e567"]
-}, Open  ]],
+}, Closed]],
 
 Cell[CellGroupData[{
 
@@ -1700,7 +1700,7 @@ Cell[BoxData[{
   3.996723835169718*^9, 3.9967238804698296`*^9}, {3.996724363049841*^9, 
   3.996724363529579*^9}},
  CellLabel->"In[42]:=",ExpressionUUID->"42488452-d205-0147-a8e5-bc6069643021"]
-}, Open  ]]
+}, Closed]]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -2943,53 +2943,53 @@ Cell[1916, 52, 165, 3, 74, "Chapter",ExpressionUUID->"53c57791-e7e6-f241-93d8-79
 Cell[CellGroupData[{
 Cell[2106, 59, 207, 4, 58, "Subsection",ExpressionUUID->"5b291cda-1a9d-e74c-b671-1a83082e9d2f"],
 Cell[2316, 65, 809, 26, 421, "Text",ExpressionUUID->"0eefc19a-8263-5b4d-8759-d958eb3e5473"]
-}, Open  ]],
+}, Closed]],
 Cell[CellGroupData[{
-Cell[3162, 96, 195, 4, 58, "Subsection",ExpressionUUID->"cd1e157a-a213-4f40-abdb-2000a16d340d"],
+Cell[3162, 96, 195, 4, 40, "Subsection",ExpressionUUID->"cd1e157a-a213-4f40-abdb-2000a16d340d"],
 Cell[3360, 102, 423, 14, 181, "Text",ExpressionUUID->"dfd1f900-878e-df4f-8dfa-203d066e3093"]
-}, Open  ]],
+}, Closed]],
 Cell[CellGroupData[{
-Cell[3820, 121, 206, 4, 72, "Section",ExpressionUUID->"fc3b972a-16b8-b047-b1c3-2b2d8974f0db"],
+Cell[3820, 121, 206, 4, 57, "Section",ExpressionUUID->"fc3b972a-16b8-b047-b1c3-2b2d8974f0db"],
 Cell[CellGroupData[{
 Cell[4051, 129, 254, 5, 58, "Subsection",ExpressionUUID->"e3059af0-6c2c-bf4d-98c4-c34727536f84"],
 Cell[4308, 136, 892, 30, 518, "Text",ExpressionUUID->"4351d79f-2a81-2543-996a-dcc538b55b59"]
-}, Open  ]],
+}, Closed]],
 Cell[CellGroupData[{
-Cell[5237, 171, 267, 5, 58, "Subsection",ExpressionUUID->"af065ace-6c61-9640-962d-9c0be07a129f"],
+Cell[5237, 171, 267, 5, 40, "Subsection",ExpressionUUID->"af065ace-6c61-9640-962d-9c0be07a129f"],
 Cell[5507, 178, 835, 32, 614, "Text",ExpressionUUID->"6e372404-6d8b-fe40-be85-6e46731ccb75"]
-}, Open  ]],
+}, Closed]],
 Cell[CellGroupData[{
-Cell[6379, 215, 253, 5, 58, "Subsection",ExpressionUUID->"a17a3871-629d-6a47-843f-bdb9c6746e39"],
+Cell[6379, 215, 253, 5, 40, "Subsection",ExpressionUUID->"a17a3871-629d-6a47-843f-bdb9c6746e39"],
 Cell[6635, 222, 750, 19, 253, "Text",ExpressionUUID->"f96ee203-7adf-4c42-acbd-fcfc3e71d534"]
-}, Open  ]]
+}, Closed]]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[7434, 247, 257, 5, 72, "Section",ExpressionUUID->"a1ea54b6-b8db-a74f-af90-e4cd9843d441"],
 Cell[CellGroupData[{
 Cell[7716, 256, 325, 5, 58, "Subsection",ExpressionUUID->"99552e1b-ca3a-1b4f-85ea-bf70a7971b2a"],
 Cell[8044, 263, 941, 33, 590, "Text",ExpressionUUID->"5ab7c447-ae94-0349-b762-6b502c7508ad"]
-}, Open  ]],
+}, Closed]],
 Cell[CellGroupData[{
-Cell[9022, 301, 300, 5, 58, "Subsection",ExpressionUUID->"986de956-0e53-fe40-9120-6494118ed2ff"],
+Cell[9022, 301, 300, 5, 40, "Subsection",ExpressionUUID->"986de956-0e53-fe40-9120-6494118ed2ff"],
 Cell[9325, 308, 960, 30, 518, "Text",ExpressionUUID->"6f1995fb-352c-7143-8193-a133014f4508"]
-}, Open  ]],
+}, Closed]],
 Cell[CellGroupData[{
-Cell[10322, 343, 323, 5, 58, "Subsection",ExpressionUUID->"db32c8d1-b8f5-254a-96c6-a1d0d4e65ce3"],
+Cell[10322, 343, 323, 5, 40, "Subsection",ExpressionUUID->"db32c8d1-b8f5-254a-96c6-a1d0d4e65ce3"],
 Cell[10648, 350, 1238, 45, 878, "Text",ExpressionUUID->"1582aebb-faec-0b4c-a594-b60429f377d5"]
-}, Open  ]],
+}, Closed]],
 Cell[CellGroupData[{
-Cell[11923, 400, 339, 6, 57, "Subsection",ExpressionUUID->"0ee633e0-5ca6-9d44-bb2f-ae3871cc44f2"],
+Cell[11923, 400, 339, 6, 39, "Subsection",ExpressionUUID->"0ee633e0-5ca6-9d44-bb2f-ae3871cc44f2"],
 Cell[12265, 408, 955, 32, 494, "Text",ExpressionUUID->"cef8bb08-fee9-bd49-8a3e-e6d0efbf6ae1"]
-}, Open  ]]
+}, Closed]]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[13269, 446, 325, 6, 72, "Section",ExpressionUUID->"505cf67f-597c-1b48-a593-4bdad816a596"],
 Cell[13597, 454, 1357, 58, 1215, "Text",ExpressionUUID->"e6c91385-8713-d848-9458-7bd87d263b79"]
-}, Open  ]],
+}, Closed]],
 Cell[CellGroupData[{
-Cell[14991, 517, 334, 6, 72, "Section",ExpressionUUID->"d707cb05-09a8-0343-9c99-82621672d421"],
+Cell[14991, 517, 334, 6, 57, "Section",ExpressionUUID->"d707cb05-09a8-0343-9c99-82621672d421"],
 Cell[15328, 525, 926, 24, 373, "Text",ExpressionUUID->"65dc2e19-fc3f-804f-8c81-ef8c05c0852e"]
-}, Open  ]]
+}, Closed]]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[16303, 555, 237, 5, 74, "Chapter",ExpressionUUID->"f4d69a2f-11c3-5a49-b552-ecf688f93604",
@@ -3001,9 +3001,9 @@ Cell[16771, 570, 1360, 22, 133, "Text",ExpressionUUID->"42c876e5-45d9-e745-9103-
  InitializationCell->True],
 Cell[18134, 594, 13712, 341, 885, "Input",ExpressionUUID->"ab69ce8b-4d6b-8c46-b9c5-0f318769e567",
  InitializationCell->True]
-}, Open  ]],
+}, Closed]],
 Cell[CellGroupData[{
-Cell[31883, 940, 200, 4, 72, "Section",ExpressionUUID->"3630f306-1e93-ef43-82b0-a81abab99980",
+Cell[31883, 940, 200, 4, 57, "Section",ExpressionUUID->"3630f306-1e93-ef43-82b0-a81abab99980",
  InitializationCell->True],
 Cell[32086, 946, 1096, 18, 133, "Text",ExpressionUUID->"43b73047-c475-a94e-ba63-eb20e8ad993f",
  InitializationCell->True],
@@ -3013,7 +3013,7 @@ Cell[47383, 1290, 1281, 20, 157, "Text",ExpressionUUID->"e40b80dc-9a9a-7446-bc2f
  InitializationCell->True],
 Cell[48667, 1312, 15490, 389, 1032, "Input",ExpressionUUID->"42488452-d205-0147-a8e5-bc6069643021",
  InitializationCell->True]
-}, Open  ]]
+}, Closed]]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[64206, 1707, 157, 3, 74, "Chapter",ExpressionUUID->"4051205b-5892-9746-83bc-dd8fba7aaf7c"],

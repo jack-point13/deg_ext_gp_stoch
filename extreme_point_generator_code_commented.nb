@@ -1,0 +1,3044 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 15.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[    114684,       3036]
+NotebookOptionsPosition[    108923,       2919]
+NotebookOutlinePosition[    109355,       2936]
+CellTagsIndexPosition[    109312,       2933]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Extreme points of Gibbs-preserving stochastic maps", "Title",
+ CellChangeTimes->{{3.992679080711361*^9, 3.9926790992830105`*^9}, {
+   3.9967247622698727`*^9, 3.9967247711052*^9}, 
+   3.996725444698269*^9},ExpressionUUID->"47c1fe55-0e60-764b-9642-\
+9f7758273be5"],
+
+Cell["\<\
+This notebook provides symbolic tools for constructing extreme-point germs of \
+Gibbs-preserving stochastic maps in the presence of energy degeneracy.
+
+Separate constructions are provided for the high-temperature and \
+low-temperature regimes. 
+At high temperature, the relevant families emerge from permutation matrices \
+common to all energy degeneracies. 
+At low temperature, they emerge from a degeneracy-dependent class of \
+admissible block-upper-triangular stochastic maps compatible with the \
+zero-temperature limit.
+
+The notebook is intended as a computational companion to the accompanying \
+paper. It implements the corresponding constructions, organises the resulting \
+families according to their limiting points, and allows different \
+energy-degeneracy structures to be explored.\
+\>", "Text",
+ CellChangeTimes->{{3.996724828990967*^9, 3.996724856863262*^9}, 
+   3.9967253760765114`*^9, 3.996725439039486*^9, {3.996726682309557*^9, 
+   3.9967267548417645`*^9}},ExpressionUUID->"6d1e0b72-0638-3d49-87c5-\
+1d4163c17ce0"],
+
+Cell[CellGroupData[{
+
+Cell["Using the notebook", "Chapter",
+ CellChangeTimes->{{3.996725499714329*^9, 
+  3.9967255033327065`*^9}},ExpressionUUID->"53c57791-e7e6-f241-93d8-\
+794fe929d2e1"],
+
+Cell[CellGroupData[{
+
+Cell["Energy-degeneracy structure", "Subsection",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 
+   3.9967255561035633`*^9}},ExpressionUUID->"5b291cda-1a9d-e74c-b671-\
+1a83082e9d2f"],
+
+Cell["\<\
+The energy spectrum is specified by a degeneracy list
+
+    enStruct = {d0, d1, ..., dk}
+
+where d0, d1, and so forth are the degeneracies of successive energy levels, \
+ordered from the ground-state energy upwards. Every entry of enStruct should \
+be a positive integer.
+
+For example,
+
+    enStruct = {2, 1, 3}
+
+describes a system with a twofold degenerate ground level, a non-degenerate \
+first excited level, and a threefold degenerate second excited level.
+
+The total dimension of the state space is
+
+    dim = Total[enStruct]
+
+The basis is ordered in consecutive blocks corresponding to the energy levels \
+listed in enStruct.\
+\>", "Text",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 
+   3.996725585289835*^9}},ExpressionUUID->"0eefc19a-8263-5b4d-8759-\
+d958eb3e5473"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Matrix convention", "Subsection",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 
+   3.996725587259596*^9}},ExpressionUUID->"cd1e157a-a213-4f40-abdb-\
+2000a16d340d"],
+
+Cell["\<\
+All physical maps returned by the notebook are represented as \
+column-stochastic matrices. Thus, for a returned matrix M, every column sums \
+to one.
+
+Gibbs preservation is expressed as
+
+    M . g == g
+
+where g is the relevant Gibbs vector.\
+\>", "Text",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 
+   3.9967256181496696`*^9}},ExpressionUUID->"dfd1f900-878e-df4f-8dfa-\
+203d066e3093"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["HIGH-TEMPERATURE CONSTRUCTION", "Section",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 
+   3.9967256211494884`*^9}},ExpressionUUID->"fc3b972a-16b8-b047-b1c3-\
+2b2d8974f0db"],
+
+Cell[CellGroupData[{
+
+Cell["Complete calculation", "Subsection",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.9967256359394474`*^9, 
+   3.9967256398842716`*^9}},ExpressionUUID->"e3059af0-6c2c-bf4d-98c4-\
+c34727536f84"],
+
+Cell["\<\
+To generate the high-temperature extreme-point germs for all permutation \
+starting points, evaluate
+
+    highTempResults = AllHighTExtPoints[enStruct];
+
+The output is grouped according to the permutation matrices from which the \
+germs emerge. Each group has the form
+
+    {permutationSeed, candidate1, candidate2, ...}
+
+The first element is the infinite-temperature permutation seed. The remaining \
+elements are the associated high-temperature extreme-point candidates.
+
+The p-th group can be accessed using
+
+    highTempResults[[p]]
+
+Its permutation seed is
+
+    highTempResults[[p, 1]]
+
+Its associated candidate germs are
+
+    Rest[highTempResults[[p]]]\
+\>", "Text",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 
+   3.9967256538041973`*^9}},ExpressionUUID->"4351d79f-2a81-2543-996a-\
+dcc538b55b59"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Calculation for a selected permutation", "Subsection",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 
+   3.99672565027952*^9}},ExpressionUUID->"af065ace-6c61-9640-962d-\
+9c0be07a129f"],
+
+Cell["\<\
+To study the germs associated with only one permutation matrix, evaluate
+
+    HighTempExtPoints[testPerm, dim]
+
+The parameter testPerm must be a dim-by-dim permutation matrix, and dim must \
+agree with its dimensions.
+
+For example,
+
+    dim = Total[enStruct];
+    testPerm = IdentityMatrix[dim];
+
+    selectedHighTempResults =
+      HighTempExtPoints[testPerm, dim];
+
+A different permutation seed can be selected from
+
+    Permutations[IdentityMatrix[dim]]
+
+For example,
+
+    testPerm =
+      Permutations[IdentityMatrix[dim]][[p]];
+
+    selectedHighTempResults =
+      HighTempExtPoints[testPerm, dim];\
+\>", "Text",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 
+   3.996725667749424*^9}},ExpressionUUID->"6e372404-6d8b-fe40-be85-\
+6e46731ccb75"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["High-temperature output", "Subsection",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 
+   3.996725669977274*^9}},ExpressionUUID->"a17a3871-629d-6a47-843f-\
+bdb9c6746e39"],
+
+Cell["\<\
+The resulting matrices are expressed in terms of symbolic Gibbs parameters
+
+    Subscript[\[Gamma], 0],
+    Subscript[\[Gamma], 1],
+    ...
+
+The complete function AllHighTExtPoints automatically identifies parameters \
+associated with states belonging to the same degenerate energy sector.
+
+The construction uses the first-order high-temperature expansion. The \
+returned matrices should therefore be interpreted as germs around the \
+infinite-temperature limit rather than as exact finite-temperature \
+expressions.\
+\>", "Text",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 
+   3.9967256785571003`*^9}},ExpressionUUID->"f96ee203-7adf-4c42-acbd-\
+fcfc3e71d534"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["LOW-TEMPERATURE CONSTRUCTION", "Section",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 
+   3.9967257123924103`*^9}},ExpressionUUID->"a1ea54b6-b8db-a74f-af90-\
+e4cd9843d441"],
+
+Cell[CellGroupData[{
+
+Cell["Admissible zero-temperature starting points", "Subsection",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 3.9967256880520916`*^9}, {3.9967260674498043`*^9, 
+   3.9967260790098286`*^9}},ExpressionUUID->"99552e1b-ca3a-1b4f-85ea-\
+bf70a7971b2a"],
+
+Cell["\<\
+The admissible zero-temperature starting matrices associated with enStruct \
+are generated using
+
+    admissibleMatrices =
+      GenerateAdmissibleMatrices[enStruct];
+
+The output is a list of deterministic column-stochastic matrices compatible \
+with the specified energy-degeneracy structure.
+
+The number of admissible matrices can be inspected using
+
+    Length[admissibleMatrices]
+
+All generated matrices can be displayed using
+
+    MatrixForm /@ admissibleMatrices
+
+A selected matrix can be accessed using
+
+    admissibleMatrices[[p]]
+
+or displayed using
+
+    MatrixForm[admissibleMatrices[[p]]]
+
+These matrices provide the allowed zero-temperature endpoints for the \
+low-temperature germ construction.\
+\>", "Text",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 
+   3.9967257143296013`*^9}},ExpressionUUID->"5ab7c447-ae94-0349-b762-\
+6b502c7508ad"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Complete calculation", "Subsection",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 3.9967257047325573`*^9}, {3.9967257455334606`*^9, 
+   3.996725751739586*^9}},ExpressionUUID->"986de956-0e53-fe40-9120-\
+6494118ed2ff"],
+
+Cell["\<\
+To generate the low-temperature extreme-point germs for all admissible \
+zero-temperature starting points, evaluate
+
+    lowTempResults = AllLowTExtPoints[enStruct];
+
+The output is grouped according to the admissible matrices from which the \
+germs emerge. Each group has the form
+
+    {startingMatrix, candidate1, candidate2, ...}
+
+The first element is the zero-temperature starting matrix. The remaining \
+elements are the associated low-temperature extreme-point candidates.
+
+The p-th group can be accessed using
+
+    lowTempResults[[p]]
+
+Its zero-temperature starting matrix is
+
+    lowTempResults[[p, 1]]
+
+Its associated candidate germs are
+
+    Rest[lowTempResults[[p]]]\
+\>", "Text",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 3.9967257047325573`*^9}, {3.9967257534397717`*^9, 
+   3.9967257809640713`*^9}},ExpressionUUID->"6f1995fb-352c-7143-8193-\
+a133014f4508"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Calculation for a selected starting point", "Subsection",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 3.9967257047325573`*^9}, {3.9967257534397717`*^9, 
+   3.9967257760770855`*^9}},ExpressionUUID->"db32c8d1-b8f5-254a-96c6-\
+a1d0d4e65ce3"],
+
+Cell["\<\
+To analyse the germs emerging from one selected zero-temperature matrix, \
+evaluate
+
+    LowTempExtPoints[testPerm, dim, enStruct]
+
+Here:
+
+    testPerm
+
+is the selected admissible zero-temperature starting matrix;
+
+    dim
+
+is the total state-space dimension and should equal Total[enStruct];
+
+    enStruct
+
+specifies the degeneracies of the ordered energy levels.
+
+The starting matrix should normally be selected from the output of
+
+    GenerateAdmissibleMatrices[enStruct]
+
+For example,
+
+    dim = Total[enStruct];
+
+    admissibleMatrices =
+      GenerateAdmissibleMatrices[enStruct];
+
+    testPerm = admissibleMatrices[[p]];
+
+    selectedLowTempResults =
+      LowTempExtPoints[testPerm, dim, enStruct];
+
+Although the argument is named testPerm in the code, a low-temperature \
+starting point need not be a permutation matrix. It is an admissible \
+deterministic stochastic matrix compatible with the chosen energy structure.\
+\>", "Text",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 3.9967257047325573`*^9}, 3.9967257534397717`*^9, {
+   3.9967257891494083`*^9, 
+   3.996725790341776*^9}},ExpressionUUID->"1582aebb-faec-0b4c-a594-\
+b60429f377d5"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["Low-temperature output", "Subsubsection"]], \
+"Subsection",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 3.9967257047325573`*^9}, 3.9967257534397717`*^9, 
+   3.996725792983238*^9},ExpressionUUID->"0ee633e0-5ca6-9d44-bb2f-\
+ae3871cc44f2"],
+
+Cell["\<\
+The low-temperature candidate matrices are expressed using the symbolic Gibbs \
+parameters
+
+    Subscript[\[Gamma], 0],
+    Subscript[\[Gamma], 1],
+    ...
+
+States belonging to the same degenerate energy level share the same Gibbs \
+parameter.
+
+The returned candidates are selected so that they converge to the prescribed \
+starting matrix in the zero-temperature limit. The calculation uses the \
+hierarchy
+
+    Subscript[\[Gamma], i] -> x^i
+
+followed by the limit x -> 0.
+
+A result group containing only its starting matrix,
+
+    {startingMatrix}
+
+indicates that no additional low-temperature candidate was retained for that \
+starting point.
+\
+\>", "Text",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 3.9967257047325573`*^9}, 3.9967257534397717`*^9, {
+   3.9967257962641163`*^9, 
+   3.996725801899563*^9}},ExpressionUUID->"cef8bb08-fee9-bd49-8a3e-\
+e6d0efbf6ae1"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["RECOMMENDED WORKFLOW", "Section",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 3.9967257047325573`*^9}, 3.9967257534397717`*^9, {
+   3.9967257962641163`*^9, 
+   3.996725803539604*^9}},ExpressionUUID->"505cf67f-597c-1b48-a593-\
+4bdad816a596"],
+
+Cell["\<\
+
+A complete high- and low-temperature calculation can be performed using
+
+    enStruct = {d0, d1, ..., dk};
+
+    dim = Total[enStruct];
+
+    highTempResults =
+      AllHighTExtPoints[enStruct];
+
+    admissibleMatrices =
+      GenerateAdmissibleMatrices[enStruct];
+
+    lowTempResults =
+      AllLowTExtPoints[enStruct];
+
+
+For exploratory calculations, it is preferable to begin with a small energy \
+structure and inspect the admissible matrices separately.
+
+For example,
+
+    enStruct = {2, 1};
+
+    dim = Total[enStruct];
+
+    admissibleMatrices =
+      GenerateAdmissibleMatrices[enStruct];
+
+    MatrixForm /@ admissibleMatrices
+
+A selected low-temperature sector can then be evaluated using
+
+    p = 1;
+
+    selectedLowTempResults =
+      LowTempExtPoints[
+        admissibleMatrices[[p]],
+        dim,
+        enStruct
+      ];
+
+Similarly, a selected high-temperature sector can be evaluated using
+
+    p = 1;
+
+    testPerm =
+      Permutations[IdentityMatrix[dim]][[p]];
+
+    selectedHighTempResults =
+      HighTempExtPoints[testPerm, dim];\
+\>", "Text",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 3.9967257047325573`*^9}, 3.9967257534397717`*^9, {
+   3.9967257962641163`*^9, 
+   3.996725813752489*^9}},ExpressionUUID->"e6c91385-8713-d848-9458-\
+7bd87d263b79"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["CONTROLLING THE CALCULATION", "Section",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 3.9967257047325573`*^9}, 3.9967257534397717`*^9, {
+   3.9967257962641163`*^9, 
+   3.9967258354620056`*^9}},ExpressionUUID->"d707cb05-09a8-0343-9c99-\
+82621672d421"],
+
+Cell["\<\
+
+The computational cost increases rapidly with the total dimension. The \
+principal sources of this growth are the enumeration of permutation matrices, \
+admissible zero-temperature matrices, and active zero constraints, together \
+with the symbolic solution and feasibility checks.
+
+For this reason, the following workflow is recommended:
+
+    1. Begin with a small degeneracy structure.
+
+    2. Evaluate GenerateAdmissibleMatrices[enStruct] separately.
+
+    3. Inspect individual permutation or zero-temperature starting points.
+
+    4. Apply HighTempExtPoints or LowTempExtPoints to a selected starting \
+point.
+
+    5. Use AllHighTExtPoints\
+\>", "Text",
+ CellChangeTimes->{
+  3.9967255159512424`*^9, {3.9967255522955933`*^9, 3.9967255824411545`*^9}, {
+   3.996725642479706*^9, 3.9967257047325573`*^9}, 3.9967257534397717`*^9, 
+   3.9967257962641163`*^9},ExpressionUUID->"65dc2e19-fc3f-804f-8c81-\
+ef8c05c0852e"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Rough code", "Chapter",
+ InitializationCell->True,
+ CellChangeTimes->{{3.9967248188045673`*^9, 3.9967248192550907`*^9}, {
+  3.996724902629692*^9, 
+  3.9967249037406197`*^9}},ExpressionUUID->"f4d69a2f-11c3-5a49-b552-\
+ecf688f93604"],
+
+Cell[CellGroupData[{
+
+Cell["High-temperature generation", "Section",
+ InitializationCell->True,
+ CellChangeTimes->{{3.9967247860142555`*^9, 
+  3.9967247894194565`*^9}},ExpressionUUID->"2fe906da-634a-8440-b041-\
+bf5ab3a5e1aa"],
+
+Cell["\<\
+High-temperature extreme points of Gibbs-preserving stochastic maps \
+HighTempExtPoints constructs first-order high-temperature extreme-point \
+candidates associated with a given permutation matrix.Starting from a general \
+perturbation with vanishing column sums,it imposes preservation of the Gibbs \
+vector expanded to first order in the inverse temperature.Candidate vertices \
+are isolated by selecting sets of active zero-entry \
+constraints.Parametric,malformed,duplicate,and infeasible candidates are \
+subsequently removed,and the remaining matrices are expressed in terms of the \
+first-order Gibbs parameters Subscript[\[Gamma],i].AllHighTExtPoints repeats \
+this construction for every permutation matrix of the prescribed \
+dimension.The list enStruct specifies the energy degeneracies,and Gibbs \
+parameters associated with states belonging to the same energy eigenspace are \
+identified.\
+\>", "Text",
+ InitializationCell->True,
+ CellChangeTimes->{{3.9926794122253494`*^9, 3.9926795226327763`*^9}, {
+   3.992679593176958*^9, 3.992679593272928*^9}, {3.992679847099123*^9, 
+   3.9926798971442375`*^9}, {3.992680027495184*^9, 3.992680037529148*^9}, {
+   3.9926801922292576`*^9, 3.992680207329315*^9}, 3.996721193495842*^9, {
+   3.9967213789174995`*^9, 
+   3.9967213959193115`*^9}},ExpressionUUID->"42c876e5-45d9-e745-9103-\
+1b40cf65ef80"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"HighTempExtPoints", "[", 
+    RowBox[{"testPerm_", ",", "dim_"}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "zeroPos", ",", "zeroPosSubsets", ",", "perturb", ",", "vars", ",", 
+       "gibbsPerturb", ",", "solution", ",", "perturbSol1", ",", "solSet", ",",
+        "solZeros", ",", "perturbSol2", ",", "solSetUnparam", ",", 
+       "correctness", ",", "correctPos"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"zeroPos", "=", 
+       RowBox[{"Position", "[", 
+        RowBox[{"testPerm", ",", "0"}], "]"}]}], ";", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Locate", " ", "zero", " ", "entries", " ", "of", " ", "the", " ", 
+        "permutation", " ", 
+        RowBox[{"seed", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"zeroPosSubsets", "=", 
+       RowBox[{"Subsets", "[", 
+        RowBox[{"zeroPos", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"dim", "-", "1"}], ")"}], "^", "2"}], "}"}]}], "]"}]}], ";",
+       "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Generate", " ", "candidate", " ", "sets", " ", "of", " ", "active", " ",
+         "zero", " ", 
+        RowBox[{"constraints", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"perturb", "=", 
+       RowBox[{
+        RowBox[{"Array", "[", 
+         RowBox[{"x", ",", 
+          RowBox[{"{", 
+           RowBox[{"dim", ",", "dim"}], "}"}]}], "]"}], "/.", " ", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"x", "[", 
+            RowBox[{"dim", ",", "i"}], "]"}], "->", 
+           RowBox[{"Sum", "[", 
+            RowBox[{
+             RowBox[{"-", 
+              RowBox[{"x", "[", 
+               RowBox[{"j", ",", "i"}], "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"j", ",", "1", ",", 
+               RowBox[{"dim", "-", "1"}]}], "}"}]}], "]"}]}], ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", "1", ",", "dim"}], "}"}]}], "]"}]}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Construct", " ", "a", " ", "perturbation", " ", "with", " ", 
+        "vanishing", " ", "column", " ", 
+        RowBox[{"sums", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"vars", "=", 
+       RowBox[{"Flatten", "[", 
+        RowBox[{"perturb", "[", 
+         RowBox[{"[", 
+          RowBox[{
+           RowBox[{";;", 
+            RowBox[{"-", "2"}]}], ",", ";;"}], "]"}], "]"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Collect", " ", "the", " ", "independent", " ", "perturbation", " ", 
+        RowBox[{"variables", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"gibbsPerturb", "=", 
+       RowBox[{"Normal", "[", 
+        RowBox[{"Series", "[", 
+         RowBox[{
+          RowBox[{"Exp", "[", 
+           RowBox[{
+            RowBox[{"-", "b"}], "*", 
+            RowBox[{"Array", "[", 
+             RowBox[{"en", ",", "dim"}], "]"}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"b", ",", "0", ",", "1"}], "}"}]}], "]"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Expand", " ", "the", " ", "Gibbs", " ", "vector", " ", "to", " ", 
+        "first", " ", "order", " ", "in", " ", "inverse", " ", 
+        RowBox[{"temperature", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"solution", "=", 
+       RowBox[{"Solve", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"testPerm", "+", "perturb", "-", 
+             RowBox[{"IdentityMatrix", "[", "dim", "]"}]}], ")"}], ".", 
+           "gibbsPerturb"}], "==", "0"}], ",", "vars"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"Impose", " ", "first"}], "-", 
+        RowBox[{"order", " ", "Gibbs", " ", 
+         RowBox[{"preservation", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"perturbSol1", "=", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"testPerm", "+", "perturb"}], ")"}], "/.", " ", 
+        RowBox[{"solution", "[", 
+         RowBox[{"[", "1", "]"}], "]"}]}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{
+        "Obtain", " ", "the", " ", "general", " ", "stochastic", " ", 
+         "Gibbs"}], "-", 
+        RowBox[{"preserving", " ", 
+         RowBox[{"perturbation", "."}]}]}], "*)"}], 
+      RowBox[{"Monitor", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"solSet", "=", 
+          RowBox[{"DeleteDuplicates", "[", 
+           RowBox[{"Table", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"solZeros", "=", 
+               RowBox[{"Solve", "[", 
+                RowBox[{
+                 RowBox[{"Table", "[", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"testPerm", "+", "perturb"}], ")"}], "/.", " ", 
+                    RowBox[{"solution", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}]}], ")"}], "[", 
+                    RowBox[{"[", 
+                    RowBox[{
+                    RowBox[{"i", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}], ",", 
+                    RowBox[{"i", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}]}], "]"}], "]"}], "==", 
+                    "0"}], ",", 
+                   RowBox[{"{", 
+                    RowBox[{"i", ",", "j"}], "}"}]}], "]"}], ",", "vars"}], 
+                "]"}]}], ";", "\[IndentingNewLine]", 
+              RowBox[{"(*", 
+               RowBox[{
+               "Set", " ", "the", " ", "entries", " ", "selected", " ", "by", 
+                " ", "j", " ", "to", " ", 
+                RowBox[{"zero", "."}]}], "*)"}], "\[IndentingNewLine]", 
+              RowBox[{"perturbSol2", "=", 
+               RowBox[{"perturbSol1", "/.", " ", 
+                RowBox[{"solZeros", "[", 
+                 RowBox[{"[", "1", "]"}], "]"}]}]}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"j", ",", "zeroPosSubsets"}], "}"}]}], "]"}], "]"}]}], 
+         ";"}], "\[IndentingNewLine]", "\t", 
+        RowBox[{"(*", 
+         RowBox[{
+          RowBox[{"Substitute", " ", "each", " ", "active"}], "-", 
+          RowBox[{"constraint", " ", "solution", " ", "and", " ", "remove", " ", 
+           RowBox[{"duplicates", "."}]}]}], "*)"}], "\[IndentingNewLine]", ",",
+         "j"}], "]"}], ";", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Display", " ", "the", " ", "currently", " ", "processed", " ", "set", 
+        " ", "of", " ", "zero", " ", 
+        RowBox[{"constraints", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"solSet", "=", 
+       RowBox[{"Simplify", "[", 
+        RowBox[{"Select", "[", 
+         RowBox[{"solSet", ",", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Dimensions", "[", "#", "]"}], "==", 
+            RowBox[{"{", 
+             RowBox[{"dim", ",", "dim"}], "}"}]}], "&"}]}], "]"}], "]"}]}], ";",
+       "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"Retain", " ", "only", " ", "explicit", " ", "dim"}], "-", 
+        "by", "-", 
+        RowBox[{"dim", " ", "matrix", " ", 
+         RowBox[{"solutions", "."}]}]}], "*)"}], 
+      RowBox[{"solSetUnparam", "=", 
+       RowBox[{"Select", "[", 
+        RowBox[{"solSet", ",", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Length", "[", 
+            RowBox[{"Intersection", "[", 
+             RowBox[{
+              RowBox[{"Flatten", "[", "#", "]"}], ",", 
+              RowBox[{"Union", "[", 
+               RowBox[{
+                RowBox[{"Flatten", "[", 
+                 RowBox[{"perturb", "+", "testPerm"}], "]"}], ",", 
+                RowBox[{"Flatten", "[", "perturb", "]"}], ",", 
+                RowBox[{"Flatten", "[", 
+                 RowBox[{"-", "perturb"}], "]"}]}], "]"}]}], "]"}], "]"}], "==",
+            "0"}], "&"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Discard", " ", "candidates", " ", "containing", " ", "unresolved", " ",
+         "perturbation", " ", 
+        RowBox[{"variables", "."}]}], "*)"}], 
+      RowBox[{"Monitor", "[", 
+       RowBox[{
+        RowBox[{"correctness", "=", 
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"FullSimplify", "[", 
+             RowBox[{"Reduce", "[", 
+              RowBox[{
+               RowBox[{"i", ">=", "0"}], "&&", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"Array", "[", 
+                  RowBox[{"en", ",", "dim"}], "]"}], "/.", " ", 
+                 RowBox[{"List", "->", "Less"}]}], ")"}], "&&", 
+               RowBox[{"0", "<", "b", "<", 
+                RowBox[{"1", "/", 
+                 RowBox[{"en", "[", "dim", "]"}]}]}], "&&", 
+               RowBox[{
+                RowBox[{"Array", "[", 
+                 RowBox[{"en", ",", "dim"}], "]"}], ">", "0"}]}], "]"}], 
+             "]"}], "===", "False"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", "solSetUnparam"}], "}"}]}], "]"}]}], ",", 
+        RowBox[{"MatrixForm", "[", "i", "]"}]}], "]"}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"Test", " ", "feasibility", " ", "for", " ", "positive"}], ",", 
+        RowBox[{"ordered", " ", "energies", " ", "at", " ", "high", " ", 
+         RowBox[{"temperature", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"correctPos", "=", 
+       RowBox[{"Flatten", "[", 
+        RowBox[{"Position", "[", 
+         RowBox[{"correctness", ",", "False"}], "]"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Select", " ", "candidates", " ", "not", " ", "found", " ", "to", " ", 
+        "be", " ", 
+        RowBox[{"infeasible", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"Simplify", "[", 
+        RowBox[{"solSetUnparam", "/.", " ", 
+         RowBox[{
+          RowBox[{"en", "[", "i_", "]"}], ":>", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"1", "-", 
+             RowBox[{"Subscript", "[", 
+              RowBox[{"\[Gamma]", ",", 
+               RowBox[{"i", "-", "1"}]}], "]"}]}], ")"}], "/", "b"}]}]}], 
+        "]"}], "[", 
+       RowBox[{"[", "correctPos", "]"}], "]"}]}]}], "\n", 
+    RowBox[{"(*", 
+     RowBox[{
+     "Express", " ", "the", " ", "retained", " ", "candidates", " ", "in", " ",
+       "terms", " ", "of", " ", "gamma", " ", 
+      RowBox[{"parameters", "."}]}], "*)"}], "]"}]}], "\[IndentingNewLine]", 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"AllHighTExtPoints", "[", "enStruct_", "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"dim", "=", 
+        RowBox[{"Total", "[", "enStruct", "]"}]}], ",", 
+       RowBox[{"ens", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{"ConstantArray", "[", 
+            RowBox[{"i", ",", 
+             RowBox[{"enStruct", "[", 
+              RowBox[{"[", 
+               RowBox[{"i", "+", "1"}], "]"}], "]"}]}], "]"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", "0", ",", 
+             RowBox[{
+              RowBox[{"Length", "[", "enStruct", "]"}], "-", "1"}]}], "}"}]}],
+           "]"}], "]"}]}]}], "}"}], ",", 
+     RowBox[{"(*", 
+      RowBox[{
+       RowBox[{
+       "Determine", " ", "the", " ", "total", " ", "dimension", " ", "and", " ",
+         "assign", " ", "an", " ", "energy"}], "-", 
+       RowBox[{"sector", " ", "label", " ", "to", " ", "each", " ", "basis", " ", 
+        RowBox[{"state", "."}]}]}], "*)"}], 
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Prepend", "[", 
+        RowBox[{
+         RowBox[{"DeleteDuplicates", "[", 
+          RowBox[{"Simplify", "[", 
+           RowBox[{
+            RowBox[{"HighTempExtPoints", "[", 
+             RowBox[{"perm", ",", "dim"}], "]"}], "/.", " ", 
+            RowBox[{
+             RowBox[{"Subscript", "[", 
+              RowBox[{"\[Gamma]", ",", "i_"}], "]"}], ":>", 
+             RowBox[{"Subscript", "[", 
+              RowBox[{"\[Gamma]", ",", 
+               RowBox[{"ens", "[", 
+                RowBox[{"[", 
+                 RowBox[{"i", "+", "1"}], "]"}], "]"}]}], "]"}]}]}], "]"}], 
+          "]"}], ",", "perm"}], "]"}], "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+        "Identify", " ", "Gibbs", " ", "parameters", " ", "associated", " ", 
+         "with", " ", "degenerate", " ", "energies", " ", "and", " ", 
+         "remove", " ", "the", " ", "resulting", " ", "duplicate", " ", 
+         RowBox[{"candidates", "."}]}], "*)"}], ",", "\[IndentingNewLine]", 
+       RowBox[{"{", 
+        RowBox[{"perm", ",", 
+         RowBox[{"Permutations", "[", 
+          RowBox[{"IdentityMatrix", "[", "dim", "]"}], "]"}]}], "}"}]}], 
+      "]"}]}], "]"}]}], "\n", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+    "Apply", " ", "the", " ", "construction", " ", "to", " ", "every", " ", 
+     "permutation", " ", "seed", " ", "and", " ", "retain", " ", "each", " ", 
+     "seed", " ", "together", " ", "with", " ", "its", " ", "associated", " ",
+      "extreme"}], "-", 
+    RowBox[{"point", " ", 
+     RowBox[{"germs", "."}]}]}], "*)"}]}], "\[IndentingNewLine]"}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.996723450360876*^9, 3.9967235933697815`*^9}},
+ CellLabel->"In[38]:=",ExpressionUUID->"ab69ce8b-4d6b-8c46-b9c5-0f318769e567"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Low-Temperature generation", "Section",
+ InitializationCell->True,
+ CellChangeTimes->{{3.9967248037597694`*^9, 
+  3.996724809709669*^9}},ExpressionUUID->"3630f306-1e93-ef43-82b0-\
+a81abab99980"],
+
+Cell["\<\
+Admissible zero - temperature starting matrices GenerateAdmissibleMatrices \
+constructs the deterministic stochastic matrices that may serve as zero - \
+temperature starting points for the low - temperature germ construction . The \
+list m specifies the successive energy degeneracies . The basis is first \
+partitioned into energy blocks in reversed order . For each block, rows may \
+either map injectively within the same block or map to a block lying to its \
+right in this internal ordering . Repeated targets are allowed for the latter \
+assignments, while the final block must map bijectively onto itself . All \
+compatible block assignments are combined and converted into binary matrices \
+with one non - zero entry per row . The final transpose and reversal restore \
+the original energy ordering and produce column - stochastic admissible \
+matrices .\
+\>", "Text",
+ InitializationCell->True,
+ CellChangeTimes->{{3.9967239024653015`*^9, 3.9967239165784607`*^9}, {
+  3.9967240802814217`*^9, 
+  3.9967241145595684`*^9}},ExpressionUUID->"43b73047-c475-a94e-ba63-\
+eb20e8ad993f"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"GenerateAdmissibleMatrices", "[", "m_List", "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+     "k", ",", "n", ",", "ends", ",", "starts", ",", "ranges", ",", 
+      "blockChoices", ",", "buildMatrix"}], "}"}], ",", 
+    RowBox[{
+     RowBox[{"k", "=", 
+      RowBox[{"Length", "[", "m", "]"}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{"Number", " ", "of", " ", "distinct", " ", "energy", " ", 
+       RowBox[{"sectors", "."}]}], "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"n", "=", 
+      RowBox[{"Total", "[", 
+       RowBox[{"Reverse", "[", "m", "]"}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{
+       RowBox[{"Total", " ", "state"}], "-", 
+       RowBox[{"space", " ", 
+        RowBox[{"dimension", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"ends", "=", 
+      RowBox[{"Accumulate", "[", 
+       RowBox[{"Reverse", "[", "m", "]"}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{
+      "Final", " ", "basis", " ", "index", " ", "of", " ", "each", " ", 
+       "block", " ", "in", " ", "reversed", " ", "energy", " ", 
+       RowBox[{"order", "."}]}], "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"starts", "=", 
+      RowBox[{"Prepend", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Most", "[", "ends", "]"}], "+", "1"}], ",", "1"}], "]"}]}], 
+     ";", "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{"Initial", " ", "basis", " ", "index", " ", "of", " ", "each", " ", 
+       RowBox[{"block", "."}]}], "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"ranges", "=", 
+      RowBox[{"MapThread", "[", 
+       RowBox[{"Range", ",", 
+        RowBox[{"{", 
+         RowBox[{"starts", ",", "ends"}], "}"}]}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{
+      "Basis", " ", "indices", " ", "belonging", " ", "to", " ", "the", " ", 
+       "respective", " ", "energy", " ", 
+       RowBox[{"blocks", "."}]}], "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"blockChoices", "=", 
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"Module", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+           "diagCols", ",", "rightCols", ",", "ma", ",", "rows", ",", 
+            "choices"}], "}"}], ",", 
+          RowBox[{
+           RowBox[{"diagCols", "=", 
+            RowBox[{"ranges", "[", 
+             RowBox[{"[", "a", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+           RowBox[{"(*", 
+            RowBox[{
+            "Columns", " ", "belonging", " ", "to", " ", "the", " ", 
+             "current", " ", "energy", " ", 
+             RowBox[{"block", "."}]}], "*)"}], "\[IndentingNewLine]", 
+           RowBox[{"rightCols", "=", 
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{"a", "<", "k"}], ",", 
+              RowBox[{"Flatten", "[", 
+               RowBox[{"ranges", "[", 
+                RowBox[{"[", 
+                 RowBox[{
+                  RowBox[{"a", "+", "1"}], ";;", "k"}], "]"}], "]"}], "]"}], ",", 
+              RowBox[{"{", "}"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+           RowBox[{"(*", 
+            RowBox[{
+            "Columns", " ", "in", " ", "blocks", " ", "to", " ", "the", " ", 
+             "right", " ", "of", " ", "the", " ", "current", " ", 
+             RowBox[{"block", "."}]}], "*)"}], "\[IndentingNewLine]", 
+           RowBox[{"ma", "=", 
+            RowBox[{"Length", "[", "diagCols", "]"}]}], ";", 
+           "\[IndentingNewLine]", 
+           RowBox[{"(*", 
+            RowBox[{
+            "Degeneracy", " ", "of", " ", "the", " ", "current", " ", 
+             "energy", " ", 
+             RowBox[{"block", "."}]}], "*)"}], "\[IndentingNewLine]", 
+           RowBox[{"rows", "=", 
+            RowBox[{"Range", "[", "ma", "]"}]}], ";", "\[IndentingNewLine]", 
+           RowBox[{"(*", 
+            RowBox[{
+            "Local", " ", "row", " ", "indices", " ", "within", " ", "the", 
+             " ", "current", " ", 
+             RowBox[{"block", "."}]}], "*)"}], "\[IndentingNewLine]", 
+           RowBox[{"choices", "=", 
+            RowBox[{
+             RowBox[{"Reap", "[", 
+              RowBox[{"Do", "[", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"If", "[", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"Length", "[", "rightCols", "]"}], "==", "0"}], "&&", 
+                    RowBox[{
+                    RowBox[{"ma", "-", "i"}], ">", "0"}]}], ",", 
+                   RowBox[{"Continue", "[", "]"}]}], "]"}], ";", 
+                 "\[IndentingNewLine]", 
+                 RowBox[{"(*", 
+                  RowBox[{
+                  "Require", " ", "the", " ", "final", " ", "block", " ", 
+                   "to", " ", "map", " ", "entirely", " ", "within", " ", 
+                   RowBox[{"itself", "."}]}], "*)"}], "\[IndentingNewLine]", 
+                 RowBox[{"Do", "[", 
+                  RowBox[{
+                   RowBox[{"Module", "[", 
+                    RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{
+                    "offRows", ",", "diagAssignments", ",", 
+                    "rightAssignments"}], "}"}], ",", 
+                    RowBox[{
+                    RowBox[{"offRows", "=", 
+                    RowBox[{"Complement", "[", 
+                    RowBox[{"rows", ",", "diagRows"}], "]"}]}], ";", 
+                    "\[IndentingNewLine]", 
+                    RowBox[{"(*", 
+                    RowBox[{
+                    "Rows", " ", "assigned", " ", "outside", " ", "the", " ", 
+                    "current", " ", "diagonal", " ", 
+                    RowBox[{"block", "."}]}], "*)"}], "\[IndentingNewLine]", 
+                    RowBox[{"diagAssignments", "=", 
+                    RowBox[{"If", "[", 
+                    RowBox[{
+                    RowBox[{"i", "==", "0"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"{", "}"}], "}"}], ",", 
+                    RowBox[{"Permutations", "[", 
+                    RowBox[{"diagCols", ",", 
+                    RowBox[{"{", "i", "}"}]}], "]"}]}], "]"}]}], ";", 
+                    "\[IndentingNewLine]", 
+                    RowBox[{"(*", 
+                    RowBox[{
+                    "Injective", " ", "assignments", " ", "to", " ", 
+                    "columns", " ", "within", " ", "the", " ", "same", " ", 
+                    RowBox[{"block", "."}]}], "*)"}], "\[IndentingNewLine]", 
+                    RowBox[{"rightAssignments", "=", 
+                    RowBox[{"If", "[", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"ma", "-", "i"}], "==", "0"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"{", "}"}], "}"}], ",", 
+                    RowBox[{"Tuples", "[", 
+                    RowBox[{"rightCols", ",", 
+                    RowBox[{"ma", "-", "i"}]}], "]"}]}], "]"}]}], ";", 
+                    "\[IndentingNewLine]", 
+                    RowBox[{"(*", 
+                    RowBox[{
+                    "Unrestricted", " ", "assignments", " ", "to", " ", 
+                    "columns", " ", "in", " ", "later", " ", 
+                    RowBox[{"blocks", "."}]}], "*)"}], "\[IndentingNewLine]", 
+                    RowBox[{"Do", "[", 
+                    RowBox[{
+                    RowBox[{"Do", "[", 
+                    RowBox[{
+                    RowBox[{"Module", "[", 
+                    RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{"target", "=", 
+                    RowBox[{"ConstantArray", "[", 
+                    RowBox[{"0", ",", "ma"}], "]"}]}], "}"}], ",", 
+                    RowBox[{
+                    RowBox[{"Do", "[", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"target", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"diagRows", "[", 
+                    RowBox[{"[", "t", "]"}], "]"}], "]"}], "]"}], "=", 
+                    RowBox[{"diagChoice", "[", 
+                    RowBox[{"[", "t", "]"}], "]"}]}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"t", ",", "1", ",", "i"}], "}"}]}], "]"}], ";", 
+                    "\[IndentingNewLine]", 
+                    RowBox[{"(*", 
+                    RowBox[{
+                    "Assign", " ", "the", " ", "selected", " ", "rows", " ", 
+                    "within", " ", "the", " ", "diagonal", " ", 
+                    RowBox[{"block", "."}]}], "*)"}], "\[IndentingNewLine]", 
+                    RowBox[{"Do", "[", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"target", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"offRows", "[", 
+                    RowBox[{"[", "t", "]"}], "]"}], "]"}], "]"}], "=", 
+                    RowBox[{"rightChoice", "[", 
+                    RowBox[{"[", "t", "]"}], "]"}]}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"t", ",", "1", ",", 
+                    RowBox[{"ma", "-", "i"}]}], "}"}]}], "]"}], ";", 
+                    "\[IndentingNewLine]", 
+                    RowBox[{"(*", 
+                    RowBox[{
+                    "Assign", " ", "the", " ", "remaining", " ", "rows", " ", 
+                    "to", " ", "later", " ", 
+                    RowBox[{"blocks", "."}]}], "*)"}], "\[IndentingNewLine]", 
+                    RowBox[{"Sow", "[", "target", "]"}]}]}], "]"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"rightChoice", ",", "rightAssignments"}], "}"}]}],
+                     "]"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"diagChoice", ",", "diagAssignments"}], "}"}]}], 
+                    "]"}], ";"}]}], "\[IndentingNewLine]", 
+                    RowBox[{"(*", 
+                    RowBox[{
+                    "Collect", " ", "every", " ", "compatible", " ", "target",
+                     " ", 
+                    RowBox[{"vector", "."}]}], "*)"}], "\[IndentingNewLine]", 
+                    "]"}], ",", 
+                   RowBox[{"{", 
+                    RowBox[{"diagRows", ",", 
+                    RowBox[{"Subsets", "[", 
+                    RowBox[{"rows", ",", 
+                    RowBox[{"{", "i", "}"}]}], "]"}]}], "}"}]}], "]"}]}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"i", ",", "0", ",", "ma"}], "}"}]}], "]"}], "]"}], "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+           RowBox[{"(*", 
+            RowBox[{
+            "Enumerate", " ", "assignments", " ", "with", " ", "every", " ", 
+             "possible", " ", "number", " ", "of", " ", "diagonal", " ", 
+             RowBox[{"rows", "."}]}], "*)"}], "\[IndentingNewLine]", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"choices", "===", 
+              RowBox[{"{", "}"}]}], ",", 
+             RowBox[{"{", "}"}], ",", 
+             RowBox[{"First", "[", "choices", "]"}]}], "]"}]}]}], "]"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"a", ",", "1", ",", "k"}], "}"}]}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{
+      "Generate", " ", "the", " ", "admissible", " ", "target", " ", 
+       "vectors", " ", "independently", " ", "for", " ", "each", " ", 
+       RowBox[{"block", "."}]}], "*)"}], "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"buildMatrix", "[", "targets_", "]"}], ":=", 
+      RowBox[{"Module", "[", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"flatTargets", ",", "rowTargetPairs"}], "}"}], ",", 
+        RowBox[{
+         RowBox[{"flatTargets", "=", 
+          RowBox[{"Flatten", "[", "targets", "]"}]}], ";", 
+         "\[IndentingNewLine]", 
+         RowBox[{"(*", 
+          RowBox[{
+          "Combine", " ", "the", " ", "blockwise", " ", "targets", " ", 
+           "into", " ", "one", " ", "target", " ", "per", " ", 
+           RowBox[{"row", "."}]}], "*)"}], "\[IndentingNewLine]", 
+         RowBox[{"rowTargetPairs", "=", 
+          RowBox[{"Transpose", "[", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"Range", "[", "n", "]"}], ",", "flatTargets"}], "}"}], 
+           "]"}]}], ";", "\[IndentingNewLine]", 
+         RowBox[{"(*", 
+          RowBox[{
+          "Pair", " ", "each", " ", "row", " ", "with", " ", "its", " ", 
+           "assigned", " ", "target", " ", 
+           RowBox[{"column", "."}]}], "*)"}], "\[IndentingNewLine]", 
+         RowBox[{"Normal", "@", 
+          RowBox[{"SparseArray", "[", 
+           RowBox[{
+            RowBox[{"Thread", "[", 
+             RowBox[{"rowTargetPairs", "->", "1"}], "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"n", ",", "n"}], "}"}]}], "]"}]}]}]}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{
+       RowBox[{
+       "Construct", " ", "the", " ", "corresponding", " ", "binary", " ", 
+        "row"}], "-", 
+       RowBox[{"stochastic", " ", 
+        RowBox[{"matrix", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"Sort", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Reverse", "[", 
+         RowBox[{
+          RowBox[{"Reverse", "[", "#", "]"}], "\[Transpose]"}], "]"}], "&"}], 
+       "/@", 
+       RowBox[{"(", 
+        RowBox[{"buildMatrix", "/@", 
+         RowBox[{"Tuples", "[", "blockChoices", "]"}]}], ")"}]}], "]"}]}]}], 
+   "]"}]}], "\n", 
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Combine", " ", "all", " ", "block", " ", "choices"}], ",", 
+    RowBox[{
+     RowBox[{"transpose", " ", "to", " ", "column"}], "-", 
+     RowBox[{"stochastic", " ", "form"}]}], ",", 
+    RowBox[{
+    "and", " ", "restore", " ", "the", " ", "original", " ", "energy", " ", 
+     RowBox[{"ordering", "."}]}]}], "*)"}]}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.9967239024653015`*^9, 3.9967239165784607`*^9}, {
+  3.9967240802814217`*^9, 3.9967241081495514`*^9}, {3.996726529639736*^9, 
+  3.996726532713217*^9}},
+ CellLabel->"In[76]:=",ExpressionUUID->"f561d506-faaf-154f-a89d-fcf07e3ef0c0"],
+
+Cell["\<\
+Low - temperature extreme points of Gibbs - preserving stochastic maps \
+LowTempExtPoints constructs low - temperature extreme - point germs emerging \
+from an admissible zero - temperature stochastic matrix . The Gibbs vector is \
+parametrised by one variable for each distinct energy level, with the uniform \
+ground - state contribution included explicitly . Column stochasticity and \
+Gibbs preservation are imposed before candidate vertices are isolated by \
+active zero - entry constraints . The retained candidates must admit non - \
+negative entries, strictly positive Gibbs weights, and positive entries on \
+the support of the starting matrix . After rewriting the Gibbs variables as \
+Subscript[\[Gamma], i], the final limit test selects precisely those families \
+that converge to the prescribed zero - temperature starting point . \
+AllLowTExtPoints first generates the admissible zero - temperature starting \
+matrices associated with the degeneracy structure and then constructs the low \
+- temperature germs emerging from each of them .\
+\>", "Text",
+ InitializationCell->True,
+ CellChangeTimes->{{3.9967237411505623`*^9, 3.9967237463173733`*^9}, {
+  3.996723812801756*^9, 
+  3.99672382142795*^9}},ExpressionUUID->"e40b80dc-9a9a-7446-bc2f-\
+5857d4d2ebd2"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"LowTempExtPoints", "[", 
+    RowBox[{"testPerm_", ",", "dim_", ",", "enStruct_"}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "zeroPos", ",", "zeroPosSubsets", ",", "perturb", ",", "vars", ",", 
+       "gibbsPerturb", ",", "solution", ",", "perturbSol1", ",", "solSet", ",",
+        "solZeros", ",", "perturbSol2", ",", "solSetUnparam", ",", 
+       "correctness", ",", "correctPos", ",", "nonZeros", ",", "ens"}], "}"}],
+      ",", 
+     RowBox[{
+      RowBox[{"ens", "=", 
+       RowBox[{"Flatten", "[", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{"ConstantArray", "[", 
+           RowBox[{"i", ",", 
+            RowBox[{"enStruct", "[", 
+             RowBox[{"[", 
+              RowBox[{"i", "+", "1"}], "]"}], "]"}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", "0", ",", 
+            RowBox[{
+             RowBox[{"Length", "[", "enStruct", "]"}], "-", "1"}]}], "}"}]}], 
+         "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"Assign", " ", "an", " ", "energy"}], "-", 
+        RowBox[{
+        "sector", " ", "label", " ", "to", " ", "each", " ", "basis", " ", 
+         RowBox[{"state", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"nonZeros", "=", 
+       RowBox[{"Position", "[", 
+        RowBox[{"testPerm", ",", 
+         RowBox[{"_", "?", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"#", "!=", "0"}], "&"}], ")"}]}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{
+        "Record", " ", "the", " ", "support", " ", "of", " ", "the", " ", 
+         "zero"}], "-", 
+        RowBox[{"temperature", " ", "starting", " ", 
+         RowBox[{"matrix", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"zeroPos", "=", 
+       RowBox[{"Position", "[", 
+        RowBox[{"testPerm", ",", "0"}], "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{"Locate", " ", "its", " ", "zero", " ", 
+        RowBox[{"entries", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"zeroPosSubsets", "=", 
+       RowBox[{"Subsets", "[", 
+        RowBox[{"zeroPos", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"dim", "-", "1"}], ")"}], "^", "2"}], "}"}]}], "]"}]}], ";",
+       "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Generate", " ", "candidate", " ", "sets", " ", "of", " ", "active", " ",
+         "zero", " ", 
+        RowBox[{"constraints", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"perturb", "=", 
+       RowBox[{
+        RowBox[{"Array", "[", 
+         RowBox[{"x", ",", 
+          RowBox[{"{", 
+           RowBox[{"dim", ",", "dim"}], "}"}]}], "]"}], "/.", " ", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"x", "[", 
+            RowBox[{"dim", ",", "i"}], "]"}], "->", 
+           RowBox[{"Sum", "[", 
+            RowBox[{
+             RowBox[{"-", 
+              RowBox[{"x", "[", 
+               RowBox[{"j", ",", "i"}], "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"j", ",", "1", ",", 
+               RowBox[{"dim", "-", "1"}]}], "}"}]}], "]"}]}], ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", "1", ",", "dim"}], "}"}]}], "]"}]}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Construct", " ", "a", " ", "perturbation", " ", "with", " ", 
+        "vanishing", " ", "column", " ", 
+        RowBox[{"sums", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"vars", "=", 
+       RowBox[{"Flatten", "[", 
+        RowBox[{"perturb", "[", 
+         RowBox[{"[", 
+          RowBox[{
+           RowBox[{";;", 
+            RowBox[{"-", "2"}]}], ",", ";;"}], "]"}], "]"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Collect", " ", "the", " ", "independent", " ", "perturbation", " ", 
+        RowBox[{"variables", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"gibbsPerturb", "=", 
+       RowBox[{
+        RowBox[{"Array", "[", 
+         RowBox[{"y", ",", "dim"}], "]"}], "/.", " ", 
+        RowBox[{
+         RowBox[{"y", "[", "i_", "]"}], ":>", 
+         RowBox[{
+          RowBox[{"y", "[", 
+           RowBox[{
+            RowBox[{"ens", "[", 
+             RowBox[{"[", "i", "]"}], "]"}], "+", "1"}], "]"}], "+", 
+          RowBox[{
+           RowBox[{"KroneckerDelta", "[", 
+            RowBox[{
+             RowBox[{"ens", "[", 
+              RowBox[{"[", "i", "]"}], "]"}], ",", "0"}], "]"}], "/", 
+           RowBox[{"enStruct", "[", 
+            RowBox[{"[", "1", "]"}], "]"}]}]}]}]}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{
+        "Parametrise", " ", "Gibbs", " ", "weights", " ", "by", " ", "energy",
+          " ", "sector"}], ",", 
+        RowBox[{
+         RowBox[{"including", " ", "the", " ", "uniform", " ", "ground"}], "-", 
+         RowBox[{"state", " ", 
+          RowBox[{"term", "."}]}]}]}], "*)"}], 
+      RowBox[{"solution", "=", 
+       RowBox[{"Solve", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"testPerm", "+", "perturb", "-", 
+             RowBox[{"IdentityMatrix", "[", "dim", "]"}]}], ")"}], ".", 
+           "gibbsPerturb"}], "==", "0"}], ",", "vars"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{"Impose", " ", "Gibbs", " ", 
+        RowBox[{"preservation", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"perturbSol1", "=", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"testPerm", "+", "perturb"}], ")"}], "/.", " ", 
+        RowBox[{"solution", "[", 
+         RowBox[{"[", "1", "]"}], "]"}]}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{
+        "Obtain", " ", "the", " ", "general", " ", "stochastic", " ", 
+         "Gibbs"}], "-", 
+        RowBox[{"preserving", " ", 
+         RowBox[{"perturbation", "."}]}]}], "*)"}], 
+      RowBox[{"Monitor", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"solSet", "=", 
+          RowBox[{"DeleteDuplicates", "[", 
+           RowBox[{"Table", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"solZeros", "=", 
+               RowBox[{"Solve", "[", 
+                RowBox[{
+                 RowBox[{"Table", "[", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"testPerm", "+", "perturb"}], ")"}], "/.", " ", 
+                    RowBox[{"solution", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}]}], ")"}], "[", 
+                    RowBox[{"[", 
+                    RowBox[{
+                    RowBox[{"i", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}], ",", 
+                    RowBox[{"i", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}]}], "]"}], "]"}], "==", 
+                    "0"}], ",", 
+                   RowBox[{"{", 
+                    RowBox[{"i", ",", "j"}], "}"}]}], "]"}], ",", "vars"}], 
+                "]"}]}], ";", "\[IndentingNewLine]", 
+              RowBox[{"(*", 
+               RowBox[{
+               "Set", " ", "the", " ", "entries", " ", "selected", " ", "by", 
+                " ", "j", " ", "to", " ", 
+                RowBox[{"zero", "."}]}], "*)"}], "\[IndentingNewLine]", 
+              RowBox[{"perturbSol2", "=", 
+               RowBox[{"perturbSol1", "/.", " ", 
+                RowBox[{"solZeros", "[", 
+                 RowBox[{"[", "1", "]"}], "]"}]}]}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"j", ",", "zeroPosSubsets"}], "}"}]}], "]"}], "]"}]}], 
+         ";"}], ",", "\[IndentingNewLine]", "\t", 
+        RowBox[{"(*", 
+         RowBox[{
+          RowBox[{"Substitute", " ", "each", " ", "active"}], "-", 
+          RowBox[{"constraint", " ", "solution", " ", "and", " ", "remove", " ", 
+           RowBox[{"duplicates", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+        "j"}], "]"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Display", " ", "the", " ", "currently", " ", "processed", " ", "set", 
+        " ", "of", " ", "zero", " ", 
+        RowBox[{"constraints", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"solSet", "=", 
+       RowBox[{"Simplify", "[", 
+        RowBox[{"Select", "[", 
+         RowBox[{"solSet", ",", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Dimensions", "[", "#", "]"}], "==", 
+            RowBox[{"{", 
+             RowBox[{"dim", ",", "dim"}], "}"}]}], "&"}]}], "]"}], "]"}]}], ";",
+       "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"Retain", " ", "only", " ", "explicit", " ", "dim"}], "-", 
+        "by", "-", 
+        RowBox[{"dim", " ", "matrix", " ", 
+         RowBox[{"solutions", "."}]}]}], "*)"}], 
+      RowBox[{"solSetUnparam", "=", 
+       RowBox[{"Select", "[", 
+        RowBox[{"solSet", ",", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Length", "[", 
+            RowBox[{"Intersection", "[", 
+             RowBox[{
+              RowBox[{"Flatten", "[", "#", "]"}], ",", 
+              RowBox[{"Union", "[", 
+               RowBox[{
+                RowBox[{"Flatten", "[", 
+                 RowBox[{"perturb", "+", "testPerm"}], "]"}], ",", 
+                RowBox[{"Flatten", "[", "perturb", "]"}], ",", 
+                RowBox[{"Flatten", "[", 
+                 RowBox[{"-", "perturb"}], "]"}]}], "]"}]}], "]"}], "]"}], "==",
+            "0"}], "&"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Discard", " ", "candidates", " ", "containing", " ", "unresolved", " ",
+         "perturbation", " ", 
+        RowBox[{"variables", "."}]}], "*)"}], 
+      RowBox[{"Monitor", "[", 
+       RowBox[{
+        RowBox[{"correctness", "=", 
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"FullSimplify", "[", 
+             RowBox[{"Reduce", "[", 
+              RowBox[{
+               RowBox[{"i", ">=", "0"}], "&&", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"DeleteDuplicates", "[", "gibbsPerturb", "]"}], "/.",
+                  " ", 
+                 RowBox[{"List", "->", "Greater"}]}], ")"}], "&&", 
+               RowBox[{"gibbsPerturb", ">", "0"}], "&&", 
+               RowBox[{"ReplacePart", "[", 
+                RowBox[{
+                 RowBox[{"Table", "[", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{"i", "[", 
+                    RowBox[{"[", 
+                    RowBox[{
+                    RowBox[{"j", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}], ",", 
+                    RowBox[{"j", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}]}], "]"}], "]"}], ">", 
+                    "0"}], ",", 
+                   RowBox[{"{", 
+                    RowBox[{"j", ",", "nonZeros"}], "}"}]}], "]"}], ",", 
+                 RowBox[{"0", "->", "And"}]}], "]"}]}], "]"}], "]"}], "===", 
+            "False"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", "solSetUnparam"}], "}"}]}], "]"}]}], ",", 
+        RowBox[{"MatrixForm", "[", "i", "]"}]}], "]"}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Test", " ", "non"}], "-", "negativity"}], ",", 
+        RowBox[{"ordered", " ", "positive", " ", "Gibbs", " ", "weights"}], ",", 
+        RowBox[{
+        "and", " ", "positivity", " ", "on", " ", "the", " ", "initial", " ", 
+         RowBox[{"support", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"correctPos", "=", 
+       RowBox[{"Flatten", "[", 
+        RowBox[{"Position", "[", 
+         RowBox[{"correctness", ",", "False"}], "]"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Select", " ", "candidates", " ", "not", " ", "found", " ", "to", " ", 
+        "be", " ", 
+        RowBox[{"infeasible", "."}]}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"Select", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{"Simplify", "[", 
+           RowBox[{
+            RowBox[{"solSetUnparam", "/.", " ", 
+             RowBox[{
+              RowBox[{"y", "[", "1", "]"}], "->", 
+              RowBox[{
+               RowBox[{"Subscript", "[", 
+                RowBox[{"\[Gamma]", ",", "0"}], "]"}], "-", 
+               RowBox[{"1", "/", 
+                RowBox[{"enStruct", "[", 
+                 RowBox[{"[", "1", "]"}], "]"}]}]}]}]}], "/.", " ", 
+            RowBox[{
+             RowBox[{"y", "[", "i_", "]"}], ":>", 
+             RowBox[{"Subscript", "[", 
+              RowBox[{"\[Gamma]", ",", 
+               RowBox[{"i", "-", "1"}]}], "]"}]}]}], "]"}], ")"}], "[", 
+         RowBox[{"[", "correctPos", "]"}], "]"}], ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Limit", "[", 
+           RowBox[{
+            RowBox[{"#", "/.", " ", 
+             RowBox[{
+              RowBox[{"Subscript", "[", 
+               RowBox[{"\[Gamma]", ",", "i_"}], "]"}], ":>", 
+              RowBox[{"x", "^", "i"}]}]}], ",", 
+            RowBox[{"x", "->", "0"}]}], "]"}], "==", "testPerm"}], "&"}]}], 
+       "]"}]}]}], "]"}]}], "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+    "Retain", " ", "the", " ", "families", " ", "converging", " ", "to", " ", 
+     "testPerm", " ", "in", " ", "the", " ", "zero"}], "-", 
+    RowBox[{"temperature", " ", 
+     RowBox[{"limit", "."}]}]}], "*)"}], "\[IndentingNewLine]", "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"AllLowTExtPoints", "[", "struct_", "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"dim", "=", 
+       RowBox[{"Total", "[", "struct", "]"}]}], ",", "admat"}], "}"}], ",", 
+    RowBox[{"(*", 
+     RowBox[{
+      RowBox[{"Determine", " ", "the", " ", "total", " ", "state"}], "-", 
+      RowBox[{"space", " ", 
+       RowBox[{"dimension", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"adMat", "=", 
+      RowBox[{"GenerateAdmissibleMatrices", "[", "struct", "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{
+       RowBox[{"Generate", " ", "admissible", " ", "zero"}], "-", 
+       RowBox[{"temperature", " ", "starting", " ", 
+        RowBox[{"matrices", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Prepend", "[", 
+        RowBox[{
+         RowBox[{"LowTempExtPoints", "[", 
+          RowBox[{"i", ",", "dim", ",", "struct"}], "]"}], ",", "i"}], "]"}], 
+       ",", 
+       RowBox[{"{", 
+        RowBox[{"i", ",", "adMat"}], "}"}]}], "]"}]}]}], "]"}]}], "\n", 
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Construct", " ", "and", " ", "group", " ", "the", " ", "low"}], "-", 
+    RowBox[{"temperature", " ", "germs", " ", "by", " ", "starting", " ", 
+     RowBox[{"matrix", "."}]}]}], "*)"}]}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.9967237411505623`*^9, 3.9967237463173733`*^9}, {
+  3.996723835169718*^9, 3.9967238804698296`*^9}, {3.996724363049841*^9, 
+  3.996724363529579*^9}},
+ CellLabel->"In[42]:=",ExpressionUUID->"42488452-d205-0147-a8e5-bc6069643021"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Examples", "Chapter",
+ CellChangeTimes->{{3.9967259469337482`*^9, 
+  3.9967259479060535`*^9}},ExpressionUUID->"4051205b-5892-9746-83bc-\
+dd8fba7aaf7c"],
+
+Cell[TextData[{
+ "Structure selection, in the original version taken to be {1,1,1}, \
+reproducing results from ",
+ StyleBox["\[OpenCurlyDoubleQuote]Decomposability and Convex Structure of \
+Thermal Processes\[CloseCurlyDoubleQuote]",
+  FontSlant->"Italic"],
+ " (P. Mazurek and M. Horodecki, \t",
+ StyleBox["New Journal of Physics",
+  FontSlant->"Italic"],
+ " ",
+ StyleBox["20",
+  FontWeight->"Bold"],
+ ", 053040 (2018))"
+}], "Text",
+ CellChangeTimes->{{3.996726101321558*^9, 3.996726110659754*^9}, {
+  3.996726437269396*^9, 3.9967264704437237`*^9}, {3.9967265828574295`*^9, 
+  3.996726583325014*^9}},ExpressionUUID->"61da3664-58c3-1f4a-bcae-\
+411599e11a11"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"struct", " ", "=", " ", 
+  RowBox[{"{", 
+   RowBox[{"1", ",", "1", ",", "1"}], "}"}]}]], "Input",
+ CellChangeTimes->{{3.9967261126632614`*^9, 3.996726114589697*^9}, {
+  3.9967263867095757`*^9, 3.9967264264140625`*^9}, {3.9967264749898224`*^9, 
+  3.9967264756645317`*^9}},
+ CellLabel->"In[71]:=",ExpressionUUID->"602ec335-73b4-9c42-91ca-01fec58def45"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"1", ",", "1", ",", "1"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.9967261160104294`*^9, {3.9967263871397877`*^9, 3.996726426879654*^9}, 
+   3.996726476101816*^9},
+ CellLabel->"Out[71]=",ExpressionUUID->"2ba7baca-e6d5-ab4d-92de-539b37a9c62d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Low - temperature example", "Subsection",
+ CellChangeTimes->{{3.996724659773424*^9, 3.996724666649679*^9}, {
+  3.996726092719784*^9, 
+  3.996726097346428*^9}},ExpressionUUID->"272d002c-dc4d-ef49-97e7-\
+b18e83fdc058"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"TableForm", "[", 
+    RowBox[{
+     RowBox[{"#", "[", 
+      RowBox[{"[", 
+       RowBox[{";;", ",", 
+        RowBox[{"2", ";;"}]}], "]"}], "]"}], ",", 
+     RowBox[{"TableHeadings", "->", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"#", "[", 
+         RowBox[{"[", 
+          RowBox[{";;", ",", "1"}], "]"}], "]"}], ",", 
+        RowBox[{"{", "\"\<low-T extreme points\>\"", "}"}]}], "}"}]}]}], 
+    "]"}], "&"}], "[", 
+  RowBox[{"Map", "[", 
+   RowBox[{"MatrixForm", ",", 
+    RowBox[{"Quiet", "[", 
+     RowBox[{"AllLowTExtPoints", "[", "struct", "]"}], "]"}], ",", 
+    RowBox[{"{", "2", "}"}]}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.996723668798628*^9, 3.9967236895232544`*^9}, {
+   3.9967237647100067`*^9, 3.9967237677730446`*^9}, {3.9967243191348057`*^9, 
+   3.9967243454725895`*^9}, {3.9967243795099087`*^9, 3.996724541099821*^9}, {
+   3.996724617689665*^9, 3.9967246177949753`*^9}, {3.9967247196645527`*^9, 
+   3.9967247252029533`*^9}, 3.9967261220608044`*^9, {3.996726347254532*^9, 
+   3.9967263654198303`*^9}},
+ CellLabel->"In[79]:=",ExpressionUUID->"099e4b93-b71e-e948-a3fa-908bf0c2f019"],
+
+Cell[BoxData[
+ InterpretationBox[GridBox[{
+    {"\<\"\"\>", "\<\"low-T extreme points\"\>", "\<\"\"\>"},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "0", "0"},
+         {"0", "1", "0"},
+         {"0", "0", "1"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "0", "0"},
+         {"0", "1", "0"},
+         {"0", "0", "1"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], "\<\"\"\>"},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "0", "0"},
+         {"0", "1", "1"},
+         {"0", "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "0", "0"},
+         {"0", 
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "1"]]}], "1"},
+         {"0", 
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "1"]], "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "0"]]}], 
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "1"]], "0"},
+         {"0", 
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "1"]]}], "1"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]]},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "0", "1"},
+         {"0", "1", "0"},
+         {"0", "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "0"]]}], "0", "1"},
+         {"0", "1", "0"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "0"]]}], "0", "1"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "0"]], 
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "1"]]}], "0"},
+         {"0", 
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "1"]], "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]]},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "1", "0"},
+         {"0", "0", "0"},
+         {"0", "0", "1"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "1"], 
+            SubscriptBox["\[Gamma]", "0"]]}], "1", "0"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "1"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"},
+         {"0", "0", "1"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], "\<\"\"\>"},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "1", "0"},
+         {"0", "0", "1"},
+         {"0", "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          FractionBox[
+           RowBox[{
+            SubscriptBox["\[Gamma]", "0"], "-", 
+            SubscriptBox["\[Gamma]", "1"], "+", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "0"]], 
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "1"]]}], "0"},
+         {
+          FractionBox[
+           RowBox[{
+            SubscriptBox["\[Gamma]", "1"], "-", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "1"},
+         {"0", 
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "1"]], "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "1"], 
+            SubscriptBox["\[Gamma]", "0"]]}], "1", "0"},
+         {
+          FractionBox[
+           RowBox[{
+            SubscriptBox["\[Gamma]", "1"], "-", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "1"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]]},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "1", "1"},
+         {"0", "0", "0"},
+         {"0", "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "1"], 
+            SubscriptBox["\[Gamma]", "0"]]}], 
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "1"]]}], "1"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "1"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"},
+         {"0", 
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "1"]], "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            RowBox[{
+             SubscriptBox["\[Gamma]", "1"], "+", 
+             SubscriptBox["\[Gamma]", "2"]}], 
+            SubscriptBox["\[Gamma]", "0"]]}], "1", "1"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "1"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]]}
+   },
+   GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+   GridBoxSpacings->{"Columns" -> {
+       Offset[0.27999999999999997`], {
+        Offset[2.0999999999999996`]}, 
+       Offset[0.27999999999999997`]}, "Rows" -> {
+       Offset[0.2], {
+        Offset[0.4]}, 
+       Offset[0.2]}}],
+  TableForm[{{
+     MatrixForm[{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}]}, {
+     MatrixForm[{{1, 0, 0}, {
+       0, 1 - Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 1}, {
+       0, Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}}], 
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 
+        Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}, {
+       0, 1 - Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 1}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 0}}]}, {
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 1}, {0, 1, 0}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 0}}], 
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 1}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 1 - 
+        Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}, {
+       0, Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}}]}, {
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 1, 0}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 0, 0}, {0, 0, 1}}]}, {
+     MatrixForm[{{
+       Subscript[$CellContext`\[Gamma], 0]^(-1) (
+         Subscript[$CellContext`\[Gamma], 0] - 
+         Subscript[$CellContext`\[Gamma], 1] + 
+         Subscript[$CellContext`\[Gamma], 2]), 1 - 
+        Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) (
+         Subscript[$CellContext`\[Gamma], 1] - 
+         Subscript[$CellContext`\[Gamma], 2]), 0, 1}, {
+       0, Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}}], 
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 1, 0}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) (
+         Subscript[$CellContext`\[Gamma], 1] - 
+         Subscript[$CellContext`\[Gamma], 2]), 0, 1}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 0}}]}, {
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 1 - 
+        Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 1}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 0, 0}, {
+       0, Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}}], 
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) (
+         Subscript[$CellContext`\[Gamma], 1] + 
+         Subscript[$CellContext`\[Gamma], 2]), 1, 1}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 0, 0}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 0}}]}}, TableHeadings -> {{
+      MatrixForm[{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}], 
+      MatrixForm[{{1, 0, 0}, {0, 1, 1}, {0, 0, 0}}], 
+      MatrixForm[{{1, 0, 1}, {0, 1, 0}, {0, 0, 0}}], 
+      MatrixForm[{{1, 1, 0}, {0, 0, 0}, {0, 0, 1}}], 
+      MatrixForm[{{1, 1, 0}, {0, 0, 1}, {0, 0, 0}}], 
+      MatrixForm[{{1, 1, 1}, {0, 0, 0}, {0, 0, 0}}]}, {
+     "low-T extreme points"}}]]], "Output",
+ CellChangeTimes->{{3.996723674163849*^9, 3.9967236906962547`*^9}, {
+   3.9967237686598396`*^9, 3.9967237786513863`*^9}, 3.996723889515526*^9, {
+   3.9967243825217533`*^9, 3.996724391439848*^9}, {3.996724428459709*^9, 
+   3.9967244555917034`*^9}, {3.996724485789633*^9, 3.9967245350344143`*^9}, 
+   3.996724618702793*^9, 3.996724726211788*^9, 3.996726123859606*^9, {
+   3.996726353139721*^9, 3.9967264291910076`*^9}, 3.996726478134739*^9, {
+   3.996726543779663*^9, 3.99672655158963*^9}},
+ CellLabel->
+  "Out[79]//TableForm=",ExpressionUUID->"615ffeb9-1ea0-db4f-88a4-\
+602e2028a528"]
+}, {2}]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["High - temperature example", "Subsection",
+ CellChangeTimes->{{3.996724670739605*^9, 
+  3.996724677427164*^9}},ExpressionUUID->"09f5133b-1870-3f4d-9919-\
+016c944b4509"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"TableForm", "[", 
+    RowBox[{
+     RowBox[{"#", "[", 
+      RowBox[{"[", 
+       RowBox[{";;", ",", 
+        RowBox[{"2", ";;"}]}], "]"}], "]"}], ",", 
+     RowBox[{"TableHeadings", "->", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"#", "[", 
+         RowBox[{"[", 
+          RowBox[{";;", ",", "1"}], "]"}], "]"}], ",", 
+        RowBox[{"{", "\"\<high-T extreme points\>\"", "}"}]}], "}"}]}]}], 
+    "]"}], "&"}], "[", 
+  RowBox[{"Map", "[", 
+   RowBox[{"MatrixForm", ",", 
+    RowBox[{"Quiet", "[", 
+     RowBox[{"AllHighTExtPoints", "[", "struct", "]"}], "]"}], ",", 
+    RowBox[{"{", "2", "}"}]}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.9967246802897015`*^9, 3.9967246815698414`*^9}, {
+   3.9967247294337387`*^9, 3.9967247321775017`*^9}, 3.996726126584156*^9, {
+   3.996726368661476*^9, 3.996726376389513*^9}},
+ CellLabel->"In[80]:=",ExpressionUUID->"56fb7d59-a0b4-8740-a118-feb13bd07a5a"],
+
+Cell[BoxData[
+ InterpretationBox[GridBox[{
+    {"\<\"\"\>", "\<\"high-T extreme points\"\>", "\<\"\"\>", "\<\"\"\>"},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "0", "0"},
+         {"0", "1", "0"},
+         {"0", "0", "1"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "0", "0"},
+         {"0", "1", "0"},
+         {"0", "0", "1"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], "\<\"\"\>", "\<\"\"\>"},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "0", "0"},
+         {"0", "0", "1"},
+         {"0", "1", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"1", "0", "0"},
+         {"0", 
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "1"]]}], "1"},
+         {"0", 
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "1"]], "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          FractionBox[
+           RowBox[{
+            SubscriptBox["\[Gamma]", "0"], "-", 
+            SubscriptBox["\[Gamma]", "1"], "+", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "0"]], 
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "1"]]}], "0"},
+         {
+          FractionBox[
+           RowBox[{
+            SubscriptBox["\[Gamma]", "1"], "-", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "1"},
+         {"0", 
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "1"]], "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], "\<\"\"\>"},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"0", "1", "0"},
+         {"1", "0", "0"},
+         {"0", "0", "1"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"0", "1", 
+          FractionBox[
+           RowBox[{
+            SubscriptBox["\[Gamma]", "0"], "-", 
+            SubscriptBox["\[Gamma]", "1"]}], 
+           SubscriptBox["\[Gamma]", "2"]]},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "1"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"},
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "1"], 
+            SubscriptBox["\[Gamma]", "0"]]}], "0", 
+          FractionBox[
+           RowBox[{
+            RowBox[{"-", 
+             SubscriptBox["\[Gamma]", "0"]}], "+", 
+            SubscriptBox["\[Gamma]", "1"], "+", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "2"]]}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "1"], 
+            SubscriptBox["\[Gamma]", "0"]]}], "1", "0"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "1"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"},
+         {"0", "0", "1"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], "\<\"\"\>"},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"0", "1", "0"},
+         {"0", "0", "1"},
+         {"1", "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"0", "1", 
+          FractionBox[
+           RowBox[{
+            SubscriptBox["\[Gamma]", "0"], "-", 
+            SubscriptBox["\[Gamma]", "1"]}], 
+           SubscriptBox["\[Gamma]", "2"]]},
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "0"]]}], "0", 
+          FractionBox[
+           RowBox[{
+            RowBox[{"-", 
+             SubscriptBox["\[Gamma]", "0"]}], "+", 
+            SubscriptBox["\[Gamma]", "1"], "+", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "2"]]},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "0"]]}], 
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "1"]], "0"},
+         {"0", 
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "1"]]}], "1"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "1"], 
+            SubscriptBox["\[Gamma]", "0"]]}], "1", "0"},
+         {
+          FractionBox[
+           RowBox[{
+            SubscriptBox["\[Gamma]", "1"], "-", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "1"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]]},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"0", "0", "1"},
+         {"1", "0", "0"},
+         {"0", "1", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"0", 
+          FractionBox[
+           RowBox[{
+            SubscriptBox["\[Gamma]", "0"], "-", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "1"]], "1"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "1"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"},
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "1"], 
+            SubscriptBox["\[Gamma]", "0"]]}], 
+          FractionBox[
+           RowBox[{
+            RowBox[{"-", 
+             SubscriptBox["\[Gamma]", "0"]}], "+", 
+            SubscriptBox["\[Gamma]", "1"], "+", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "1"]], "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "0"]]}], "0", "1"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "0"]], 
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "1"]]}], "0"},
+         {"0", 
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "1"]], "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "1"], 
+            SubscriptBox["\[Gamma]", "0"]]}], 
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "1"]]}], "1"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "1"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"},
+         {"0", 
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "1"]], "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]]},
+    {
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"0", "0", "1"},
+         {"0", "1", "0"},
+         {"1", "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {"0", 
+          FractionBox[
+           RowBox[{
+            SubscriptBox["\[Gamma]", "0"], "-", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "1"]], "1"},
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "0"]]}], 
+          FractionBox[
+           RowBox[{
+            RowBox[{"-", 
+             SubscriptBox["\[Gamma]", "0"]}], "+", 
+            SubscriptBox["\[Gamma]", "1"], "+", 
+            SubscriptBox["\[Gamma]", "2"]}], 
+           SubscriptBox["\[Gamma]", "1"]], "0"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], 
+     TagBox[
+      RowBox[{"(", "\[NoBreak]", GridBox[{
+         {
+          RowBox[{"1", "-", 
+           FractionBox[
+            SubscriptBox["\[Gamma]", "2"], 
+            SubscriptBox["\[Gamma]", "0"]]}], "0", "1"},
+         {"0", "1", "0"},
+         {
+          FractionBox[
+           SubscriptBox["\[Gamma]", "2"], 
+           SubscriptBox["\[Gamma]", "0"]], "0", "0"}
+        },
+        GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.7]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}}], "\[NoBreak]", ")"}],
+      Function[BoxForm`e$, 
+       MatrixForm[BoxForm`e$]]], "\<\"\"\>"}
+   },
+   GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Baseline}}},
+   GridBoxSpacings->{"Columns" -> {
+       Offset[0.27999999999999997`], {
+        Offset[2.0999999999999996`]}, 
+       Offset[0.27999999999999997`]}, "Rows" -> {
+       Offset[0.2], {
+        Offset[0.4]}, 
+       Offset[0.2]}}],
+  TableForm[{{
+     MatrixForm[{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}]}, {
+     MatrixForm[{{1, 0, 0}, {
+       0, 1 - Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 1}, {
+       0, Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}}], 
+     MatrixForm[{{
+       Subscript[$CellContext`\[Gamma], 0]^(-1) (
+         Subscript[$CellContext`\[Gamma], 0] - 
+         Subscript[$CellContext`\[Gamma], 1] + 
+         Subscript[$CellContext`\[Gamma], 2]), 1 - 
+        Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) (
+         Subscript[$CellContext`\[Gamma], 1] - 
+         Subscript[$CellContext`\[Gamma], 2]), 0, 1}, {
+       0, Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}}]}, {
+     MatrixForm[{{
+       0, 1, (Subscript[$CellContext`\[Gamma], 0] - 
+         Subscript[$CellContext`\[Gamma], 1])/
+        Subscript[$CellContext`\[Gamma], 2]}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 0, 0}, {
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 0, 
+        Subscript[$CellContext`\[Gamma], 2]^(-1) (-
+          Subscript[$CellContext`\[Gamma], 0] + 
+         Subscript[$CellContext`\[Gamma], 1] + 
+         Subscript[$CellContext`\[Gamma], 2])}}], 
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 1, 0}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 0, 0}, {0, 0, 1}}]}, {
+     MatrixForm[{{
+       0, 1, (Subscript[$CellContext`\[Gamma], 0] - 
+         Subscript[$CellContext`\[Gamma], 1])/
+        Subscript[$CellContext`\[Gamma], 2]}, {
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 
+        Subscript[$CellContext`\[Gamma], 2]^(-1) (-
+          Subscript[$CellContext`\[Gamma], 0] + 
+         Subscript[$CellContext`\[Gamma], 1] + 
+         Subscript[$CellContext`\[Gamma], 2])}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 0}}], 
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 
+        Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}, {
+       0, 1 - Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 1}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 0}}], 
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 1, 0}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) (
+         Subscript[$CellContext`\[Gamma], 1] - 
+         Subscript[$CellContext`\[Gamma], 2]), 0, 1}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 0}}]}, {
+     MatrixForm[{{
+       0, Subscript[$CellContext`\[Gamma], 1]^(-1) (
+         Subscript[$CellContext`\[Gamma], 0] - 
+         Subscript[$CellContext`\[Gamma], 2]), 1}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 0, 0}, {
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 
+        Subscript[$CellContext`\[Gamma], 1]^(-1) (-
+          Subscript[$CellContext`\[Gamma], 0] + 
+         Subscript[$CellContext`\[Gamma], 1] + 
+         Subscript[$CellContext`\[Gamma], 2]), 0}}], 
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 1}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 1 - 
+        Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}, {
+       0, Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}}], 
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 1 - 
+        Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 1}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 1], 0, 0}, {
+       0, Subscript[$CellContext`\[Gamma], 1]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0}}]}, {
+     MatrixForm[{{
+       0, Subscript[$CellContext`\[Gamma], 1]^(-1) (
+         Subscript[$CellContext`\[Gamma], 0] - 
+         Subscript[$CellContext`\[Gamma], 2]), 1}, {
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 
+        Subscript[$CellContext`\[Gamma], 1]^(-1) (-
+          Subscript[$CellContext`\[Gamma], 0] + 
+         Subscript[$CellContext`\[Gamma], 1] + 
+         Subscript[$CellContext`\[Gamma], 2]), 0}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 0}}], 
+     MatrixForm[{{
+       1 - Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 1}, {0, 1, 0}, {
+       Subscript[$CellContext`\[Gamma], 0]^(-1) 
+        Subscript[$CellContext`\[Gamma], 2], 0, 0}}]}}, TableHeadings -> {{
+      MatrixForm[{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}], 
+      MatrixForm[{{1, 0, 0}, {0, 0, 1}, {0, 1, 0}}], 
+      MatrixForm[{{0, 1, 0}, {1, 0, 0}, {0, 0, 1}}], 
+      MatrixForm[{{0, 1, 0}, {0, 0, 1}, {1, 0, 0}}], 
+      MatrixForm[{{0, 0, 1}, {1, 0, 0}, {0, 1, 0}}], 
+      MatrixForm[{{0, 0, 1}, {0, 1, 0}, {1, 0, 0}}]}, {
+     "high-T extreme points"}}]]], "Output",
+ CellChangeTimes->{3.996724683180626*^9, 3.9967247331424866`*^9, 
+  3.996726127988125*^9, 3.996726377909624*^9, 3.9967264336811886`*^9, 
+  3.996726485789589*^9, 3.9967265623997345`*^9},
+ CellLabel->
+  "Out[80]//TableForm=",ExpressionUUID->"deaa4054-c582-e040-9705-\
+e598ad7d7216"]
+}, {2}]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1428, 735.75},
+WindowMargins->{{1440, Automatic}, {Automatic, 0}},
+Magnification:>1.1 Inherited,
+FrontEndVersion->"15.0 for Microsoft Windows (64-bit) (May 19, 2026)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"6541d02d-c7be-db47-a95f-e599952e364e"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 268, 4, 106, "Title",ExpressionUUID->"47c1fe55-0e60-764b-9642-9f7758273be5"],
+Cell[847, 28, 1044, 20, 205, "Text",ExpressionUUID->"6d1e0b72-0638-3d49-87c5-1d4163c17ce0"],
+Cell[CellGroupData[{
+Cell[1916, 52, 165, 3, 74, "Chapter",ExpressionUUID->"53c57791-e7e6-f241-93d8-794fe929d2e1"],
+Cell[CellGroupData[{
+Cell[2106, 59, 207, 4, 58, "Subsection",ExpressionUUID->"5b291cda-1a9d-e74c-b671-1a83082e9d2f"],
+Cell[2316, 65, 809, 26, 421, "Text",ExpressionUUID->"0eefc19a-8263-5b4d-8759-d958eb3e5473"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3162, 96, 195, 4, 58, "Subsection",ExpressionUUID->"cd1e157a-a213-4f40-abdb-2000a16d340d"],
+Cell[3360, 102, 423, 14, 181, "Text",ExpressionUUID->"dfd1f900-878e-df4f-8dfa-203d066e3093"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3820, 121, 206, 4, 72, "Section",ExpressionUUID->"fc3b972a-16b8-b047-b1c3-2b2d8974f0db"],
+Cell[CellGroupData[{
+Cell[4051, 129, 254, 5, 58, "Subsection",ExpressionUUID->"e3059af0-6c2c-bf4d-98c4-c34727536f84"],
+Cell[4308, 136, 892, 30, 518, "Text",ExpressionUUID->"4351d79f-2a81-2543-996a-dcc538b55b59"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5237, 171, 267, 5, 58, "Subsection",ExpressionUUID->"af065ace-6c61-9640-962d-9c0be07a129f"],
+Cell[5507, 178, 835, 32, 614, "Text",ExpressionUUID->"6e372404-6d8b-fe40-be85-6e46731ccb75"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6379, 215, 253, 5, 58, "Subsection",ExpressionUUID->"a17a3871-629d-6a47-843f-bdb9c6746e39"],
+Cell[6635, 222, 750, 19, 253, "Text",ExpressionUUID->"f96ee203-7adf-4c42-acbd-fcfc3e71d534"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7434, 247, 257, 5, 72, "Section",ExpressionUUID->"a1ea54b6-b8db-a74f-af90-e4cd9843d441"],
+Cell[CellGroupData[{
+Cell[7716, 256, 325, 5, 58, "Subsection",ExpressionUUID->"99552e1b-ca3a-1b4f-85ea-bf70a7971b2a"],
+Cell[8044, 263, 941, 33, 590, "Text",ExpressionUUID->"5ab7c447-ae94-0349-b762-6b502c7508ad"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9022, 301, 300, 5, 58, "Subsection",ExpressionUUID->"986de956-0e53-fe40-9120-6494118ed2ff"],
+Cell[9325, 308, 960, 30, 518, "Text",ExpressionUUID->"6f1995fb-352c-7143-8193-a133014f4508"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[10322, 343, 323, 5, 58, "Subsection",ExpressionUUID->"db32c8d1-b8f5-254a-96c6-a1d0d4e65ce3"],
+Cell[10648, 350, 1238, 45, 878, "Text",ExpressionUUID->"1582aebb-faec-0b4c-a594-b60429f377d5"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[11923, 400, 339, 6, 57, "Subsection",ExpressionUUID->"0ee633e0-5ca6-9d44-bb2f-ae3871cc44f2"],
+Cell[12265, 408, 955, 32, 494, "Text",ExpressionUUID->"cef8bb08-fee9-bd49-8a3e-e6d0efbf6ae1"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13269, 446, 325, 6, 72, "Section",ExpressionUUID->"505cf67f-597c-1b48-a593-4bdad816a596"],
+Cell[13597, 454, 1357, 58, 1215, "Text",ExpressionUUID->"e6c91385-8713-d848-9458-7bd87d263b79"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[14991, 517, 334, 6, 72, "Section",ExpressionUUID->"d707cb05-09a8-0343-9c99-82621672d421"],
+Cell[15328, 525, 926, 24, 373, "Text",ExpressionUUID->"65dc2e19-fc3f-804f-8c81-ef8c05c0852e"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16303, 555, 237, 5, 74, "Chapter",ExpressionUUID->"f4d69a2f-11c3-5a49-b552-ecf688f93604",
+ InitializationCell->True],
+Cell[CellGroupData[{
+Cell[16565, 564, 203, 4, 72, "Section",ExpressionUUID->"2fe906da-634a-8440-b041-bf5ab3a5e1aa",
+ InitializationCell->True],
+Cell[16771, 570, 1360, 22, 133, "Text",ExpressionUUID->"42c876e5-45d9-e745-9103-1b40cf65ef80",
+ InitializationCell->True],
+Cell[18134, 594, 13712, 341, 885, "Input",ExpressionUUID->"ab69ce8b-4d6b-8c46-b9c5-0f318769e567",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[31883, 940, 200, 4, 72, "Section",ExpressionUUID->"3630f306-1e93-ef43-82b0-a81abab99980",
+ InitializationCell->True],
+Cell[32086, 946, 1096, 18, 133, "Text",ExpressionUUID->"43b73047-c475-a94e-ba63-eb20e8ad993f",
+ InitializationCell->True],
+Cell[33185, 966, 14195, 322, 969, "Input",ExpressionUUID->"f561d506-faaf-154f-a89d-fcf07e3ef0c0",
+ InitializationCell->True],
+Cell[47383, 1290, 1281, 20, 157, "Text",ExpressionUUID->"e40b80dc-9a9a-7446-bc2f-5857d4d2ebd2",
+ InitializationCell->True],
+Cell[48667, 1312, 15490, 389, 1032, "Input",ExpressionUUID->"42488452-d205-0147-a8e5-bc6069643021",
+ InitializationCell->True]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[64206, 1707, 157, 3, 74, "Chapter",ExpressionUUID->"4051205b-5892-9746-83bc-dd8fba7aaf7c"],
+Cell[64366, 1712, 657, 17, 61, "Text",ExpressionUUID->"61da3664-58c3-1f4a-bcae-411599e11a11"],
+Cell[CellGroupData[{
+Cell[65048, 1733, 374, 7, 31, "Input",ExpressionUUID->"602ec335-73b4-9c42-91ca-01fec58def45"],
+Cell[65425, 1742, 283, 6, 35, "Output",ExpressionUUID->"2ba7baca-e6d5-ab4d-92de-539b37a9c62d"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[65745, 1753, 222, 4, 58, "Subsection",ExpressionUUID->"272d002c-dc4d-ef49-97e7-b18e83fdc058"],
+Cell[CellGroupData[{
+Cell[65992, 1761, 1165, 28, 70, "Input",ExpressionUUID->"099e4b93-b71e-e948-a3fa-908bf0c2f019"],
+Cell[67160, 1791, 17450, 467, 514, "Output",ExpressionUUID->"615ffeb9-1ea0-db4f-88a4-602e2028a528"]
+}, {2}]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[84656, 2264, 174, 3, 58, "Subsection",ExpressionUUID->"09f5133b-1870-3f4d-9919-016c944b4509"],
+Cell[CellGroupData[{
+Cell[84855, 2271, 957, 25, 70, "Input",ExpressionUUID->"56fb7d59-a0b4-8740-a118-feb13bd07a5a"],
+Cell[85815, 2298, 23059, 615, 525, "Output",ExpressionUUID->"deaa4054-c582-e040-9705-e598ad7d7216"]
+}, {2}]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
